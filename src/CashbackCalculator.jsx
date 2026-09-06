@@ -1010,7 +1010,7 @@ export default function CashbackCalculator() {
       <header className="topbar">
         <div className="brand">
           <Icon name="CreditCard" size={19} />
-          <span>حاسبة الكاش باك</span>
+          <span>مردود | حاسبة الكاش باك</span>
         </div>
         <div className="topbar-act">
           <button className={`icon-btn${advOn ? " on" : ""}`} onClick={() => setSheet("options")}
