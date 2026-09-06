@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import * as Lucide from "lucide-react";
 
 /* ============================================================================
    الفئات — لإضافة فئة جديدة أضفها هنا ثم أضف نسبتها داخل كل بطاقة
@@ -467,9 +466,48 @@ function Amount({ value, dec = 0, prefix = "", className = "" }) {
   );
 }
 
+/* أيقونات مضمّنة — بلا اعتماديات خارجية */
+const ICONS = {
+  Fuel: '<path d="M4 20V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v16"/><path d="M3 20h11"/><path d="M6 8h5"/><path d="M14 8h3a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0v-6l-2.5-3"/>',
+  UtensilsCrossed: '<path d="M6 3v6a3 3 0 0 0 6 0V3"/><path d="M9 12v9"/><path d="M18 3c-1.7 1.2-2.5 3-2.5 5.5 0 2 .8 3 2.5 3.5v9"/>',
+  Bike: '<circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l4-8h5"/><path d="M10 9l4 8"/><path d="M14 6h3"/>',
+  ShoppingCart: '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.5l2.6 12.4a1.5 1.5 0 0 0 1.5 1.1h8.6a1.5 1.5 0 0 0 1.5-1.2L21 7H6"/>',
+  Pill: '<path d="M11 3.5 3.5 11a4.95 4.95 0 0 0 7 7L18 10.5a4.95 4.95 0 0 0-7-7Z"/><path d="M7.5 7.5l7 7"/>',
+  Plane: '<path d="M21.5 2.5 2 10l7 3 3 7 9.5-17.5Z"/><path d="M9 13l4.5-4.5"/>',
+  GraduationCap: '<path d="M22 8 12 4 2 8l10 4 10-4Z"/><path d="M6 10.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-5.5"/>',
+  Globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>',
+  Wallet: '<path d="M20 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6"/><path d="M17 13h.01"/>',
+  CreditCard: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  SlidersHorizontal: '<path d="M3 7h11"/><path d="M18 7h3"/><circle cx="16" cy="7" r="2"/><path d="M3 17h5"/><path d="M12 17h9"/><circle cx="10" cy="17" r="2"/>',
+  Bookmark: '<path d="M19 21 12 16 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/>',
+  X: '<path d="M18 6 6 18"/><path d="M6 6l12 12"/>',
+  Sparkles: '<path d="M12 3 13.8 8.2 19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"/><path d="M19 15v4"/><path d="M17 17h4"/>',
+  RotateCcw: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  TrendingUp: '<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+  Layers: '<path d="M12 2 2 7l10 5 10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+  Check: '<path d="M20 6 9 17l-5-5"/>',
+  AlertTriangle: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  Wand2: '<path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="M3 21l9-9"/><path d="M12.2 6.2 11 5"/>',
+  HelpCircle: '<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  ArrowUpDown: '<path d="M7 3v18"/><path d="M3 7l4-4 4 4"/><path d="M17 21V3"/><path d="M13 17l4 4 4-4"/>',
+  ChevronLeft: '<path d="M15 18 9 12l6-6"/>',
+  FileText: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/>',
+  Trash2: '<path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  ExternalLink: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  Calculator: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h.01"/><path d="M12 11h.01"/><path d="M16 11h.01"/><path d="M8 15h.01"/><path d="M12 15h.01"/><path d="M16 15v4"/>',
+  Circle: '<circle cx="12" cy="12" r="9"/>',
+};
+
 function Icon({ name, size = 18, className, strokeWidth = 1.6 }) {
-  const C = Lucide[name] || Lucide.Circle;
-  return <C size={size} className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
+  return (
+    <svg
+      width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth={strokeWidth}
+      strokeLinecap="round" strokeLinejoin="round"
+      className={className} aria-hidden="true" focusable="false"
+      dangerouslySetInnerHTML={{ __html: ICONS[name] || ICONS.Circle }}
+    />
+  );
 }
 
 /* رقم يتحرّك بلطف عند تغيّر النتيجة */
@@ -913,10 +951,10 @@ export default function CashbackCalculator() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      if (typeof window === "undefined" || !window.storage) return;
+      if (typeof window === "undefined" || !window.localStorage) return;
       try {
-        const r = await window.storage.get(STORE_KEY);
-        if (alive && r && r.value) setScenarios(JSON.parse(r.value));
+        const raw = window.localStorage.getItem(STORE_KEY);
+        if (alive && raw) setScenarios(JSON.parse(raw));
       } catch { if (alive) setScenarios([]); }
     })();
     return () => { alive = false; };
@@ -924,11 +962,11 @@ export default function CashbackCalculator() {
 
   const persist = async (next) => {
     setScenarios(next);
-    if (typeof window === "undefined" || !window.storage) {
-      setStoreMsg("الحفظ غير متاح في هذا العرض."); return;
+    if (typeof window === "undefined" || !window.localStorage) {
+      setStoreMsg("الحفظ غير متاح في هذا المتصفح."); return;
     }
-    try { await window.storage.set(STORE_KEY, JSON.stringify(next)); setStoreMsg(""); }
-    catch { setStoreMsg("ما نجح الحفظ — جرّب مرة ثانية."); }
+    try { window.localStorage.setItem(STORE_KEY, JSON.stringify(next)); setStoreMsg(""); }
+    catch { setStoreMsg("ما نجح الحفظ — قد تكون مساحة المتصفح ممتلئة."); }
   };
   const saveScenario = () => {
     const name = scenName.trim() || `سيناريو ${scenarios.length + 1}`;
